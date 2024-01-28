@@ -1,0 +1,191 @@
+﻿@{
+	ViewData["Title"] = "Home Page";
+
+}
+
+<div class="text-center">
+	<h1 class="display-4">Modbus RTU</h1>
+</div>
+<div class="container">
+	<h3>
+		<label id="MStatus" class="text-info">Modbus Status: @ViewBag.ModStatus</label>
+		<hr />
+	</h3>
+
+	@* Method 1 : Interact with controller via "Form" *@
+	<div class="row">
+		<h5>Method 1 : Interact with controller via "Form"</h5>
+	</div>
+	<div class="row">
+		<div class="col-md-3">
+			@using (Html.BeginForm("btReadHolding_Click", "Home", FormMethod.Post))
+			{
+				<button type="submit" id="ReadHolding" name="ReadHolding">Read Register</button>
+			}
+		</div>
+		<div class="col-md-3">
+			<label name="val" class="text-info">Value1:@TempData["ModValue1"]</label>
+		</div>
+		<div class="col-md-3">
+			<label name="val" class="text-info">Value2:@TempData["ModValue2"]</label>
+		</div>
+		<div class="col-md-3">
+			<label name="val" class="text-info">Value3:@TempData["ModValue3"]</label>
+		</div>
+	</div>
+</div>
+<hr />
+
+
+@* Method 2 : Interact with controller via "Jquery and Ajax" *@
+<div class="row">
+	<h5>Method 2 : Interact with controller via "Jquery and Ajax"</h5>
+</div>
+<div class="container">
+	<div class="row">
+		<div class="col-md-1">
+			<button type="button" id="startButton" class="btn btn-success">StartBT</button>
+		</div>
+		<div class="col-md-2">
+			<button type="button" id="stopButton" class="btn btn-success" disabled>StopBT</button>
+		</div>
+	</div>
+	<br />
+	@* Table for show data *@
+	<div class="row">
+		<table class="table table-bordered table-sm">
+			<caption>UPH</caption>
+			<thead class="table-info">
+				<tr>
+					<th>Day</th>
+					@for (int i = 8; i <= 19; i++)
+					{
+						<th>@i h</th>
+					}
+				</tr>
+			</thead>
+			<tr>
+				<td id="tableId">#</td>
+				@for (int i = 0; i <= 11; i++)
+				{
+					<td id="tableId_@i">#</td>
+				}
+			</tr>
+			<thead class="table-info">
+				<tr>
+					<th>Night</th>
+					@for (int i = 20; i <= 23; i++)
+					{
+						<th>@i h</th>
+					}
+					@for (int i = 0; i <= 7; i++)
+					{
+						<th>@i h</th>
+					}
+				</tr>
+			</thead>
+			<tr>
+				<td id="tableId_">#</td>
+				@for (int i = 12; i <= 23; i++)
+				{
+					<td id="tableId_@i">#</td>
+				}
+			</tr>
+			<thead class="table-info">
+				<tr>
+					<th>Day-1</th>
+					@for (int i = 8; i <= 19; i++)
+					{
+						<th>@i h</th>
+					}
+				</tr>
+			</thead>
+			<tr>
+				<td>#</td>
+				@for (int i = 24; i <= 35; i++)
+				{
+					<td id="tableId_@i">#</td>
+				}
+			</tr>
+			<thead class="table-info">
+				<tr>
+					<th>Night-1</th>
+					@for (int i = 20; i <= 23; i++)
+					{
+						<th>@i h</th>
+					}
+					@for (int i = 0; i <= 7; i++)
+					{
+						<th>@i h</th>
+					}
+				</tr>
+			</thead>
+			<tr>
+				<td>#</td>
+				@for (int i = 36; i <= 47; i++)
+				{
+					<td id="tableId_@i">#</td>
+				}
+			</tr>
+		</table>
+	</div>
+</div>
+<hr />
+
+
+@* *******************************************SCRIPT********************************************* *@
+@section Scripts
+	{
+	<script>
+		var IntervalID;
+		function updateView(responseData) {
+			if (Array.isArray(responseData.mod_Data) && responseData.mod_Data.length > 0) {	//Check value
+
+				var Item = responseData.mod_Data[0];
+				for (var i = 0; i <= 47; i++) {
+					$("#tableId_" + i.toString()).text(Item[i]);
+				}
+
+				$("#MStatus").text("Modbus Status: " + responseData.mod_Status);
+
+			} else {
+				console.log("Mod_Data is either not an array or has no elements.");
+			}
+			console.log(responseData.mod_Status);
+		}
+
+		function getDataFromController() {
+			$.ajax(
+				{
+					type: "GET",
+					url: "/Home/GetData",
+					success: function (responseData) {
+						console.log("Ajax request successful");
+						updateView(responseData);
+					},
+					error: function () {
+						alert("Error fetching data");
+					}
+				});
+		}
+
+		//----------------------------//
+		$(document).ready(function () {
+			//Begin request data from controller every 1s after click StartButton
+			$("#startButton").click(function () {
+				IntervalID = setInterval(getDataFromController, 1000);
+				$("#startButton").prop("disabled", true);
+				$("#stopButton").prop("disabled", false);
+			});
+			//Stop request data from controller every 1s after click StopButton
+			$("#stopButton").click(function () {
+				clearInterval(IntervalID);
+				$("#startButton").prop("disabled", false);
+				$("#stopButton").prop("disabled", true);
+			});
+		})
+
+	</script>
+
+
+}

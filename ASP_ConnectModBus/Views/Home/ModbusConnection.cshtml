@@ -1,0 +1,51 @@
+﻿@{
+	ViewData["Title"] = "Modbus Connection";
+}
+
+@{
+	<main>
+		<div class="container">
+
+			<h3> Modbus Connection</h3>
+
+			<form action="~/Home/ModbusConnection" method="post">
+				<div class="form-group">
+					<label for="COM">COM Port</label>
+					<select class="form-control" name="COM">
+						<option>COM4</option>
+						<option>COM1</option>
+						<option>COM2</option>
+						<option>COM3</option>
+						<option>COM5</option>
+						<option>COM6</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="baudrate">Baudrate</label>
+					<select type="number" class="form-control" name="baudrate">
+						<option>115200</option>
+						<option>9600</option>
+						<option>19200</option>
+						<option>38400</option>
+						<option>256000 </option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="parity">Parity</label>
+					<select class="form-control" name="parity">
+						<option>None</option>
+						<option>Odd</option>
+						<option>Even</option>
+						<option>Mark</option>
+						<option>Space</option>
+					</select>
+				</div>
+				<button type="submit" class="btn btn-primary">Connect</button>
+			</form>
+		</div>
+		<div>
+			@Html.ActionLink("Back to List", "Index", "Home")
+		</div>
+
+	</main>
+}
